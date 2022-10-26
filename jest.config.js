@@ -5,4 +5,5 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?@?react-native|@react-native-community|@react-navigation|react-native-paper)',
   ],
+  setupFiles: ['./jest.mock.js'],
 };
