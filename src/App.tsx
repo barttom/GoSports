@@ -2,13 +2,13 @@ import React from 'react';
 import {Provider as PaperProvider} from 'react-native-paper';
 
 import {NavigationContainer} from '@react-navigation/native';
-import {MainNavigation} from './navigation/MainNavigation';
+import {MainNavigator} from './navigation/MainNavigator';
 
 export const App = () => {
   return (
     <PaperProvider>
       <NavigationContainer>
-        <MainNavigation />
+        <MainNavigator />
       </NavigationContainer>
     </PaperProvider>
   );
