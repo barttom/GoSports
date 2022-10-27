@@ -1,31 +1,26 @@
 import React, {useCallback} from 'react';
-import {IconButton, Text, Button} from 'react-native-paper';
+import {IconButton, Text, useTheme} from 'react-native-paper';
 import {FlatList, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import {useQuery, useRealm} from '../../realm';
 import Exercise from '../../realm/objects/Exercise';
+import {MainNavigatorParams} from '../../navigation';
 
 export const Exercises = () => {
   const realm = useRealm();
+  const {colors} = useTheme();
   const items = useQuery<Exercise>(Exercise);
-  const onAdd = useCallback(() => {
-    realm.write(() => {
-      realm.create(
-        'Exercise',
-        Exercise.generate({title: ' first', description: 'some description'}),
-      );
-    });
-  }, [realm]);
-
-  console.warn(items);
+  const {navigate} = useNavigation<StackNavigationProp<MainNavigatorParams>>();
+  const handleOpenAddExercise = useCallback(() => {
+    navigate('AddExercise');
+  }, []);
 
   return (
-    <View>
-      <Text>Exercises</Text>
-      <Button mode="contained" onPress={onAdd}>
-        <Text>Add simple</Text>
-      </Button>
+    <View style={{flexGrow: 1}}>
       <FlatList
         data={items}
+        style={{flexGrow: 9}}
         renderItem={({item: {title, _id}}) => (
           <View
             style={{
@@ -45,6 +40,16 @@ export const Exercises = () => {
           </View>
         )}
       />
+      <View style={{flexGrow: 0}}>
+        <IconButton
+          icon="plus"
+          mode="contained"
+          iconColor={colors.primary}
+          size={40}
+          onPress={handleOpenAddExercise}
+          style={{alignSelf: 'flex-end', marginRight: 40, marginBottom: 16}}
+        />
+      </View>
     </View>
   );
 };
