@@ -1,6 +1,6 @@
 import React from 'react';
-import {Text} from 'react-native-paper';
+import {AddExerciseForm} from './AddExerciseForm';
 
 export const AddExercise = () => {
-  return <Text>Add</Text>;
+  return <AddExerciseForm />;
 };

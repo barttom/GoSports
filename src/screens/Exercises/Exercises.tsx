@@ -1,15 +1,29 @@
 import React, {useCallback} from 'react';
-import {IconButton, Text, useTheme} from 'react-native-paper';
+import {IconButton, Text} from 'react-native-paper';
 import {FlatList, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useQuery, useRealm} from '../../realm';
 import Exercise from '../../realm/objects/Exercise';
 import {MainNavigatorParams} from '../../navigation';
+import {useMakeStyles} from '../../hooks/useMakeStyles';
 
 export const Exercises = () => {
   const realm = useRealm();
-  const {colors} = useTheme();
+  const {styles, theme} = useMakeStyles(({layout}) => ({
+    addNewButton: {
+      alignSelf: 'flex-end',
+      marginRight: layout.gap,
+      marginBottom: layout.gap,
+    },
+    wrapper: {flexGrow: 1, paddingHorizontal: layout.gap},
+    list: {flexGrow: 9},
+    listItem: {
+      marginVertical: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+  }));
   const items = useQuery<Exercise>(Exercise);
   const {navigate} = useNavigation<StackNavigationProp<MainNavigatorParams>>();
   const handleOpenAddExercise = useCallback(() => {
@@ -17,17 +31,12 @@ export const Exercises = () => {
   }, []);
 
   return (
-    <View style={{flexGrow: 1}}>
+    <View style={styles.wrapper}>
       <FlatList
         data={items}
-        style={{flexGrow: 9}}
+        style={styles.list}
         renderItem={({item: {title, _id}}) => (
-          <View
-            style={{
-              marginVertical: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
+          <View style={styles.listItem}>
             <Text>{title}</Text>
             <IconButton
               icon="trash-can-outline"
@@ -44,10 +53,10 @@ export const Exercises = () => {
         <IconButton
           icon="plus"
           mode="contained"
-          iconColor={colors.primary}
+          iconColor={theme.colors.primary}
           size={40}
           onPress={handleOpenAddExercise}
-          style={{alignSelf: 'flex-end', marginRight: 40, marginBottom: 16}}
+          style={styles.addNewButton}
         />
       </View>
     </View>
