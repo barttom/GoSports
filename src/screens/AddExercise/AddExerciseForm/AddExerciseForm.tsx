@@ -4,6 +4,7 @@ import {ScrollView} from 'react-native';
 import {Button, Text} from 'react-native-paper';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
+import {useNavigation} from '@react-navigation/native';
 import {TextInputHooked, DropdownHooked} from '../../../components/form';
 import {musclesList} from '../../../constants/muscels';
 import {useAppTheme} from '../../../layout/theme';
@@ -21,7 +22,7 @@ const validationSchema = yup
   .required();
 
 export const AddExerciseForm = () => {
-  const {handleSubmit, control} = useForm<AddExerciseFormValues>({
+  const {handleSubmit, control, formState} = useForm<AddExerciseFormValues>({
     defaultValues: {
       title: '',
       muscle: undefined,
@@ -30,15 +31,18 @@ export const AddExerciseForm = () => {
   });
   const theme = useAppTheme();
   const realm = useRealm();
+  const {goBack} = useNavigation();
   const onSubmit = async (values: AddExerciseFormValues) => {
     try {
       await realm.write(() => {
         realm.create('Exercise', Exercise.generate(values));
       });
+      goBack();
     } catch (e) {
       console.warn(e);
     }
   };
+  const disabled = formState.isSubmitting;
 
   return (
     <ScrollView style={{padding: theme.layout.gap}}>
@@ -47,6 +51,7 @@ export const AddExerciseForm = () => {
         control={control}
         label="Name"
         placeholder="Type exercise name"
+        disabled={disabled}
       />
       <DropdownHooked
         name="muscle"
@@ -54,6 +59,7 @@ export const AddExerciseForm = () => {
         placeholder="Select part fo body"
         list={musclesList}
         control={control}
+        disabled={disabled}
       />
       <TextInputHooked
         name="description"
@@ -62,11 +68,13 @@ export const AddExerciseForm = () => {
         placeholder="Add optional description"
         numberOfLines={4}
         multiline
+        disabled={disabled}
       />
       <Button
         mode="contained-tonal"
         onPress={handleSubmit(onSubmit)}
-        theme={theme}>
+        theme={theme}
+        disabled={disabled}>
         <Text>Save</Text>
       </Button>
     </ScrollView>

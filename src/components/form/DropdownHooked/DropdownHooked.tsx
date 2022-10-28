@@ -12,12 +12,14 @@ export type DropdownHookedProps = Omit<
   Pick<InputWrapperProps, 'bottomSpace'> & {
     name: string;
     control: Control<any>;
+    disabled?: boolean;
   };
 
 export const DropdownHooked = ({
   name,
   control,
   bottomSpace,
+  disabled = false,
   ...props
 }: DropdownHookedProps) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -47,6 +49,7 @@ export const DropdownHooked = ({
               size={24}
             />
           ),
+          disabled,
         }}
         {...props}
       />
