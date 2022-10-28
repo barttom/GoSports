@@ -1,18 +1,16 @@
 import React from 'react';
 import {useForm} from 'react-hook-form';
-import {Alert, ScrollView} from 'react-native';
+import {ScrollView} from 'react-native';
 import {Button, Text} from 'react-native-paper';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {TextInputHooked, DropdownHooked} from '../../../components/form';
-import {MuscleItem, musclesList} from '../../../constants/muscels';
+import {musclesList} from '../../../constants/muscels';
 import {useAppTheme} from '../../../layout/theme';
+import {useRealm} from '../../../realm';
+import Exercise, {ExerciseAttr} from '../../../realm/objects/Exercise';
 
-export type AddExerciseFormValues = {
-  title: string;
-  description?: string;
-  muscle: MuscleItem;
-};
+export type AddExerciseFormValues = ExerciseAttr;
 
 const validationSchema = yup
   .object({
@@ -31,6 +29,16 @@ export const AddExerciseForm = () => {
     resolver: yupResolver(validationSchema),
   });
   const theme = useAppTheme();
+  const realm = useRealm();
+  const onSubmit = async (values: AddExerciseFormValues) => {
+    try {
+      await realm.write(() => {
+        realm.create('Exercise', Exercise.generate(values));
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+  };
 
   return (
     <ScrollView style={{padding: theme.layout.gap}}>
@@ -57,9 +65,7 @@ export const AddExerciseForm = () => {
       />
       <Button
         mode="contained-tonal"
-        onPress={handleSubmit(data => {
-          Alert.alert(JSON.stringify(data));
-        })}
+        onPress={handleSubmit(onSubmit)}
         theme={theme}>
         <Text>Save</Text>
       </Button>
