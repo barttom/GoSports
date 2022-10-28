@@ -23,12 +23,15 @@ export const Exercises = () => {
       flexDirection: 'row',
       alignItems: 'center',
     },
+    actions: {
+      flexGrow: 0,
+    },
   }));
   const items = useQuery<Exercise>(Exercise);
   const {navigate} = useNavigation<StackNavigationProp<MainNavigatorParams>>();
   const handleOpenAddExercise = useCallback(() => {
     navigate('AddExercise');
-  }, []);
+  }, [navigate]);
 
   return (
     <View style={styles.wrapper}>
@@ -49,7 +52,7 @@ export const Exercises = () => {
           </View>
         )}
       />
-      <View style={{flexGrow: 0}}>
+      <View style={styles.actions}>
         <IconButton
           icon="plus"
           mode="contained"

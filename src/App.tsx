@@ -16,7 +16,7 @@ export const App = () => {
   const currentTheme = {
     ...theme,
     dark: colorScheme === 'dark',
-    colors: colorScheme ? colors[colorScheme] : undefined,
+    colors: colorScheme ? colors[colorScheme] : lightColors,
   };
 
   return (
@@ -27,12 +27,12 @@ export const App = () => {
             ...currentTheme,
             colors: {
               ...currentTheme.colors,
-              primary: currentTheme.colors!.primary,
-              background: currentTheme.colors!.background,
-              text: currentTheme.colors!.onBackground,
-              card: currentTheme.colors!.primaryContainer,
-              border: currentTheme.colors!.onPrimaryContainer,
-              notification: currentTheme.colors!.background,
+              primary: currentTheme.colors.primary,
+              background: currentTheme.colors.background,
+              text: currentTheme.colors.onBackground,
+              card: currentTheme.colors.primaryContainer,
+              border: currentTheme.colors.onPrimaryContainer,
+              notification: currentTheme.colors.background,
             },
           }}>
           <MainNavigator />
