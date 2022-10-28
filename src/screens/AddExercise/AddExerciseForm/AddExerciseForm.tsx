@@ -4,10 +4,9 @@ import {Alert, ScrollView} from 'react-native';
 import {Button, Text} from 'react-native-paper';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {TextInputHooked} from '../../../components/form';
+import {TextInputHooked, DropdownHooked} from '../../../components/form';
 import {MuscleItem, musclesList} from '../../../constants/muscels';
 import {useAppTheme} from '../../../layout/theme';
-import {DropdownHooked} from '../../../components/form/DropdownHooked/DropdownHooked';
 
 export type AddExerciseFormValues = {
   title: string;

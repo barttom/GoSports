@@ -1,6 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import DropDown, {DropDownPropsInterface} from 'react-native-paper-dropdown';
 import {Control, useController} from 'react-hook-form';
+import {TextInput} from 'react-native-paper';
 import {FieldWrapper, InputWrapperProps} from '../FieldWrapper/FieldWrapper';
 import {useAppTheme} from '../../../layout/theme';
 
@@ -40,6 +41,12 @@ export const DropdownHooked = ({
         theme={theme}
         inputProps={{
           error: !!fieldState.error,
+          right: (
+            <TextInput.Icon
+              icon={isVisible ? 'chevron-up' : 'chevron-down'}
+              size={24}
+            />
+          ),
         }}
         {...props}
       />
