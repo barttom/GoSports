@@ -2,6 +2,8 @@ import React from 'react';
 import {useForm} from 'react-hook-form';
 import {Alert, ScrollView} from 'react-native';
 import {Button, Text} from 'react-native-paper';
+import * as yup from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
 import {TextInputHooked} from '../../../components/form';
 import {MuscleItem} from '../../../constants/muscels';
 import {useAppTheme} from '../../../layout/theme';
@@ -12,12 +14,19 @@ export type AddExerciseFormValues = {
   muscle: MuscleItem;
 };
 
+const validationSchema = yup
+  .object({
+    title: yup.string().required(),
+  })
+  .required();
+
 export const AddExerciseForm = () => {
   const {handleSubmit, control} = useForm<AddExerciseFormValues>({
     defaultValues: {
       title: '',
       muscle: undefined,
     },
+    resolver: yupResolver(validationSchema),
   });
   const theme = useAppTheme();
 
