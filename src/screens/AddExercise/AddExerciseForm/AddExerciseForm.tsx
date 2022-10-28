@@ -5,8 +5,9 @@ import {Button, Text} from 'react-native-paper';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {TextInputHooked} from '../../../components/form';
-import {MuscleItem} from '../../../constants/muscels';
+import {MuscleItem, musclesList} from '../../../constants/muscels';
 import {useAppTheme} from '../../../layout/theme';
+import {DropdownHooked} from '../../../components/form/DropdownHooked/DropdownHooked';
 
 export type AddExerciseFormValues = {
   title: string;
@@ -17,6 +18,8 @@ export type AddExerciseFormValues = {
 const validationSchema = yup
   .object({
     title: yup.string().required(),
+    description: yup.string(),
+    muscle: yup.string().required(),
   })
   .required();
 
@@ -37,6 +40,21 @@ export const AddExerciseForm = () => {
         control={control}
         label="Name"
         placeholder="Type exercise name"
+      />
+      <DropdownHooked
+        name="muscle"
+        label="Muscle"
+        placeholder="Select part fo body"
+        list={musclesList}
+        control={control}
+      />
+      <TextInputHooked
+        name="description"
+        control={control}
+        label="Description"
+        placeholder="Add optional description"
+        numberOfLines={4}
+        multiline
       />
       <Button
         mode="contained-tonal"

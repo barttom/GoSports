@@ -25,7 +25,7 @@ export const TextInputHooked = ({
   const theme = useAppTheme();
 
   return (
-    <FieldWrapper bottomSpace={bottomSpace} error={fieldState?.error?.message}>
+    <FieldWrapper bottomSpace={bottomSpace} error={fieldState.error?.message}>
       <TextInput
         onChangeText={field.onChange}
         value={field.value}
