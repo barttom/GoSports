@@ -1,15 +1,15 @@
 import {Realm} from '@realm/react';
-import WorkoutItem from './WorkoutItem';
+import {WorkoutItemAttrs} from './WorkoutItem';
 
 export interface WorkoutAttr {
   title: string;
-  items: WorkoutItem[];
+  items: WorkoutItemAttrs[];
 }
 
 class Workout extends Realm.Object {
   _id!: Realm.BSON.ObjectId;
   title!: string;
-  items!: WorkoutItem[];
+  items!: WorkoutItemAttrs[];
 
   static generate({title, items}: WorkoutAttr) {
     return {

@@ -4,10 +4,11 @@ import Exercise from './objects/Exercise';
 import Workout from './objects/Workout';
 import ExerciseSet from './objects/ExerciseSet';
 import WorkoutItem from './objects/WorkoutItem';
+import WorkoutExercise from './objects/WorkoutExercise';
 
 export const realmConfig: Configuration = {
-  schema: [Exercise, ExerciseSet, Workout, WorkoutItem],
-  schemaVersion: 3,
+  schema: [Exercise, ExerciseSet, Workout, WorkoutItem, WorkoutExercise],
+  schemaVersion: 4,
 };
 export const {RealmProvider, useRealm, useQuery, useObject} =
   createRealmContext(realmConfig);
