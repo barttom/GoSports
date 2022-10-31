@@ -1,15 +1,15 @@
 import React, {useCallback} from 'react';
 import {IconButton} from 'react-native-paper';
 import {View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import {useMakeStyles} from '../../hooks/useMakeStyles';
-import {useRealm} from '../../realm';
-import Workout from '../../realm/objects/Workout';
-import {Muscles} from '../../constants/muscels';
+import {MainNavigatorParams} from '../../navigation';
 
 // export type WorkoutsProps = {};
 
 export const Workouts = (/*{}: WorkoutsProps*/) => {
-  const realm = useRealm();
+  const {navigate} = useNavigation<StackNavigationProp<MainNavigatorParams>>();
   const {styles, theme} = useMakeStyles(({layout}) => ({
     addNewButton: {
       alignSelf: 'flex-end',
@@ -28,31 +28,7 @@ export const Workouts = (/*{}: WorkoutsProps*/) => {
     },
   }));
   const handleOpenWorkout = useCallback(() => {
-    realm.write(() => {
-      realm.create(
-        'Workout',
-        Workout.generate({
-          title: 'test workout',
-          items: [
-            {
-              order: 1,
-              exercise: {
-                title: 'some nice',
-                muscle: Muscles.abs,
-              },
-              sets: [
-                {
-                  breakSeconds: 120,
-                  reps: 5,
-                  series: 5,
-                  weightKg: 20,
-                },
-              ],
-            },
-          ],
-        }),
-      );
-    });
+    navigate('AddWorkout');
   }, []);
 
   return (
