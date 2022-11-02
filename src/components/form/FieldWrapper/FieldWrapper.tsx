@@ -17,6 +17,7 @@ export const FieldWrapper = ({
   const {styles} = useMakeStyles(({layout}) => ({
     wrapper: {
       marginBottom: layout.spacing(bottomSpace),
+      flexGrow: 1,
     },
   }));
 
