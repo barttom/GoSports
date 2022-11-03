@@ -162,7 +162,12 @@ export const TimeLengthPickerHooked = ({
           )}
           <Text style={styles.label}>sec.</Text>
         </View>
-        <IconButton icon="backspace-outline" size={24} onPress={resetValue} />
+        <IconButton
+          icon="backspace-outline"
+          size={24}
+          onPress={resetValue}
+          disabled={!secondsIndex && !minutesIndex}
+        />
       </View>
     </FieldWrapper>
   );
