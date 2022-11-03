@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {Control, useFieldArray} from 'react-hook-form';
 import {View} from 'react-native';
-import {DropdownHooked} from '../../../components/form';
+import {DropdownHooked, TimeLengthPickerHooked} from '../../../components/form';
 import {useQuery} from '../../../realm';
 import Exercise from '../../../realm/objects/Exercise';
 import {AddWorkoutFormItemsSets} from './AddWorkoutFormItemsSets';
@@ -32,6 +32,11 @@ export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
             control={control}
           />
           <AddWorkoutFormItemsSets itemIndex={index} control={control} />
+          <TimeLengthPickerHooked
+            name={`items[${index}].breakSeconds`}
+            control={control}
+            label="Break time:"
+          />
         </View>
       ))}
     </View>

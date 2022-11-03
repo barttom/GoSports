@@ -1,13 +1,10 @@
 import React from 'react';
 import {useForm} from 'react-hook-form';
 import * as yup from 'yup';
-import {ScrollView} from 'react-native';
+import {Alert, ScrollView} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {Button, Text} from 'react-native-paper';
-import {
-  TextInputHooked,
-  TimeLengthPickerHooked,
-} from '../../../components/form';
+import {TextInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 import {WorkoutAttr} from '../../../realm/objects/Workout';
 import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
@@ -75,6 +72,9 @@ export const AddWorkoutForm = () => {
       padding: layout.gap,
     },
   }));
+  const onSubmit = (data: AddWorkoutFormValues) => {
+    Alert.alert(JSON.stringify(data));
+  };
 
   return (
     <ScrollView style={styles.wrapper}>
@@ -86,15 +86,10 @@ export const AddWorkoutForm = () => {
         mode="flat"
       />
       <AddWorkoutFormItems control={control} />
-      <TimeLengthPickerHooked
-        name="breakSeconds"
-        control={control}
-        label="Break time:"
-      />
       <Button
         mode="contained-tonal"
         theme={theme}
-        onPress={handleSubmit(data => console.warn(data))}>
+        onPress={handleSubmit(onSubmit)}>
         <Text>Save</Text>
       </Button>
     </ScrollView>

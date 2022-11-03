@@ -1,9 +1,9 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import ScrollPicker, {
   ScrollPickerProps,
 } from 'react-native-wheel-scrollview-picker';
 import {Control, useController} from 'react-hook-form';
-import {Text} from 'react-native-paper';
+import {IconButton, Text} from 'react-native-paper';
 import {View} from 'react-native';
 import {FieldWrapper, InputWrapperProps} from '../FieldWrapper/FieldWrapper';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
@@ -56,6 +56,7 @@ export const TimeLengthPickerHooked = ({
   );
   const [minutesIndex, setMinutesIndex] = useState(initialIndex.minutes);
   const [secondsIndex, setSecondsIndex] = useState(initialIndex.seconds);
+  const [shouldRenderPicker, setShouldRenderPicker] = useState(true);
   const {field, fieldState} = useController({
     control,
     name,
@@ -69,15 +70,28 @@ export const TimeLengthPickerHooked = ({
     label: {
       paddingRight: 4,
       paddingLeft: 2,
+      justifySelf: 'flex-end',
     },
     picker: {
       flexDirection: 'row',
       alignItems: 'center',
-      width: 128,
+      width: 100,
+      height: 50,
     },
     mainLabel: {
       color: colors.onBackground,
       marginRight: layout.gap,
+    },
+    pickerPlaceholder: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 40,
+      borderTopColor: colors.outline,
+      borderBottomColor: colors.outline,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderStyle: 'solid',
     },
   }));
   const pickerProps: Partial<ScrollPickerProps> = {
@@ -88,6 +102,24 @@ export const TimeLengthPickerHooked = ({
     itemHeight: 40,
     renderItem: data => <Text>{data}</Text>,
   };
+  const pickerPlaceholder = useMemo(
+    () => (
+      <View style={styles.pickerPlaceholder}>
+        <Text>00</Text>
+      </View>
+    ),
+    [],
+  );
+  const resetValue = useCallback(() => {
+    setSecondsIndex(initialIndex.seconds);
+    setMinutesIndex(initialIndex.minutes);
+    setShouldRenderPicker(false);
+    setTimeout(() => {
+      setShouldRenderPicker(true);
+    }, 0);
+  }, [initialIndex]);
+
+  console.warn(secondsIndex);
 
   useEffect(() => {
     const minutes = Number(timeNumbers[minutesIndex]);
@@ -103,27 +135,36 @@ export const TimeLengthPickerHooked = ({
       <View style={styles.wrapper}>
         {label && <Text style={styles.mainLabel}>{label}</Text>}
         <View style={styles.picker}>
-          <ScrollPicker
-            dataSource={timeNumbers}
-            {...pickerProps}
-            onValueChange={(data, selectedIndex) => {
-              setMinutesIndex(selectedIndex);
-            }}
-            selectedIndex={minutesIndex}
-          />
+          {shouldRenderPicker ? (
+            <ScrollPicker
+              dataSource={timeNumbers}
+              onValueChange={(data, selectedIndex) => {
+                setMinutesIndex(selectedIndex);
+              }}
+              selectedIndex={minutesIndex}
+              {...pickerProps}
+            />
+          ) : (
+            pickerPlaceholder
+          )}
           <Text style={styles.label}>min.</Text>
         </View>
         <View style={styles.picker}>
-          <ScrollPicker
-            dataSource={timeNumbers}
-            {...pickerProps}
-            onValueChange={(data, selectedIndex) => {
-              setSecondsIndex(selectedIndex);
-            }}
-            selectedIndex={secondsIndex}
-          />
+          {shouldRenderPicker ? (
+            <ScrollPicker
+              dataSource={timeNumbers}
+              onValueChange={(data, selectedIndex) => {
+                setSecondsIndex(selectedIndex);
+              }}
+              selectedIndex={secondsIndex}
+              {...pickerProps}
+            />
+          ) : (
+            pickerPlaceholder
+          )}
           <Text style={styles.label}>sec.</Text>
         </View>
+        <IconButton icon="backspace-outline" size={24} onPress={resetValue} />
       </View>
     </FieldWrapper>
   );
