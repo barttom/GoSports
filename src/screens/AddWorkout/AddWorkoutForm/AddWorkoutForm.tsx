@@ -4,7 +4,10 @@ import * as yup from 'yup';
 import {ScrollView} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {Button, Text} from 'react-native-paper';
-import {TextInputHooked} from '../../../components/form';
+import {
+  TextInputHooked,
+  TimeLengthPickerHooked,
+} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 import {WorkoutAttr} from '../../../realm/objects/Workout';
 import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
@@ -18,8 +21,8 @@ export type AddWorkoutFormValues = {
       reps: string;
       series: string;
       weightKg: string;
-      breakSeconds: string;
     }[];
+    breakSeconds: string;
     exerciseId: string;
   }>;
 };
@@ -31,13 +34,13 @@ const validationSchema = yup
       yup.object({
         order: yup.number().required(),
         exerciseId: yup.string().required(),
+        breakSeconds: yup.string().required(),
         sets: yup
           .array(
             yup.object({
               reps: yup.string().required(),
               series: yup.string().required(),
               weightKg: yup.string().required(),
-              breakSeconds: yup.string().required(),
             }),
           )
           .required(),
@@ -47,18 +50,18 @@ const validationSchema = yup
   .required();
 
 export const AddWorkoutForm = () => {
-  const {control, handleSubmit, formState} = useForm<AddWorkoutFormValues>({
+  const {control, handleSubmit} = useForm<AddWorkoutFormValues>({
     defaultValues: {
       title: '',
       items: [
         {
           order: 0,
+          breakSeconds: undefined,
           sets: [
             {
               reps: '',
               series: '',
               weightKg: '',
-              breakSeconds: '',
             },
           ],
           exerciseId: undefined,
@@ -73,8 +76,6 @@ export const AddWorkoutForm = () => {
     },
   }));
 
-  console.warn(formState.errors);
-
   return (
     <ScrollView style={styles.wrapper}>
       <TextInputHooked
@@ -85,6 +86,11 @@ export const AddWorkoutForm = () => {
         mode="flat"
       />
       <AddWorkoutFormItems control={control} />
+      <TimeLengthPickerHooked
+        name="breakSeconds"
+        control={control}
+        label="Break time:"
+      />
       <Button
         mode="contained-tonal"
         theme={theme}

@@ -41,8 +41,6 @@ export const NumberInputHooked = ({
     [field.onChange, allowDecimals],
   );
 
-  console.warn(field.value);
-
   return (
     <FieldWrapper
       bottomSpace={bottomSpace}
