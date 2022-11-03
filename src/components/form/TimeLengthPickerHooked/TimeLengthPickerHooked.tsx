@@ -119,8 +119,6 @@ export const TimeLengthPickerHooked = ({
     }, 0);
   }, [initialIndex]);
 
-  console.warn(secondsIndex);
-
   useEffect(() => {
     const minutes = Number(timeNumbers[minutesIndex]);
     const seconds = Number(timeNumbers[secondsIndex]);
