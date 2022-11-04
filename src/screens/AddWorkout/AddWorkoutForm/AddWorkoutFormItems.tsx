@@ -50,42 +50,31 @@ export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
 
   return (
     <View style={{flexGrow: 1}}>
-      {fields.map(({id}, index) => {
-        const content = (
-          <>
-            <Card.Content>
-              <DropdownHooked
-                label="Exercise"
-                mode="flat"
-                list={exercisesOptions}
-                name={`items[${index}].exerciseId`}
-                control={control}
-              />
-              <AddWorkoutFormItemsSets itemIndex={index} control={control} />
-              <TimeLengthPickerHooked
-                name={`items[${index}].breakSeconds`}
-                control={control}
-                label="Break time:"
-              />
-            </Card.Content>
-            <Card.Actions style={styles.actions}>
-              <IconButton
-                icon="trash-can-outline"
-                onPress={() => handleRemoveItem(index)}
-              />
-            </Card.Actions>
-          </>
-        );
-        return (index + 2) % 2 === 0 ? (
-          <Card key={id} elevation={0}>
-            {content}
-          </Card>
-        ) : (
-          <Card key={id} mode="contained">
-            {content}
-          </Card>
-        );
-      })}
+      {fields.map(({id}, index) => (
+        <Card key={id} mode={(index + 2) % 2 === 0 ? 'outlined' : 'contained'}>
+          <Card.Content>
+            <DropdownHooked
+              label="Exercise"
+              mode="flat"
+              list={exercisesOptions}
+              name={`items[${index}].exerciseId`}
+              control={control}
+            />
+            <AddWorkoutFormItemsSets itemIndex={index} control={control} />
+            <TimeLengthPickerHooked
+              name={`items[${index}].breakSeconds`}
+              control={control}
+              label="Break time:"
+            />
+          </Card.Content>
+          <Card.Actions style={styles.actions}>
+            <IconButton
+              icon="trash-can-outline"
+              onPress={() => handleRemoveItem(index)}
+            />
+          </Card.Actions>
+        </Card>
+      ))}
       <Button
         style={styles.addNextButton}
         mode="contained-tonal"
