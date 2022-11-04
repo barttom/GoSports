@@ -1,6 +1,7 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Control, useFieldArray} from 'react-hook-form';
 import {View} from 'react-native';
+import {Button} from 'react-native-paper';
 import {DropdownHooked, TimeLengthPickerHooked} from '../../../components/form';
 import {useQuery} from '../../../realm';
 import Exercise from '../../../realm/objects/Exercise';
@@ -9,7 +10,7 @@ import {AddWorkoutFormItemsSets} from './AddWorkoutFormItemsSets';
 export type AddWorkoutFormItemsProps = {control: Control<any>};
 
 export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
-  const {fields} = useFieldArray({control, name: 'items'});
+  const {fields, append} = useFieldArray({control, name: 'items'});
   const exercises = useQuery<Exercise>('Exercise');
   const exercisesOptions = useMemo(
     () =>
@@ -19,9 +20,23 @@ export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
       })),
     [exercises],
   );
+  const handleAddNewItem = useCallback(() => {
+    append({
+      order: 0,
+      breakSeconds: undefined,
+      sets: [
+        {
+          reps: '',
+          series: '',
+          weightKg: '',
+        },
+      ],
+      exerciseId: undefined,
+    });
+  }, []);
 
   return (
-    <View>
+    <View style={{flexGrow: 1}}>
       {fields.map(({id}, index) => (
         <View key={id}>
           <DropdownHooked
@@ -39,6 +54,9 @@ export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
           />
         </View>
       ))}
+      <Button mode="contained-tonal" onPress={handleAddNewItem}>
+        Add next
+      </Button>
     </View>
   );
 };

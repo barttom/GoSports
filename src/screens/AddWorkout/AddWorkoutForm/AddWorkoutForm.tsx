@@ -1,9 +1,9 @@
 import React from 'react';
 import {useForm} from 'react-hook-form';
 import * as yup from 'yup';
-import {Alert, ScrollView} from 'react-native';
+import {Alert, ScrollView, View} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {Button, Text} from 'react-native-paper';
+import {Button} from 'react-native-paper';
 import {TextInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 import {WorkoutAttr} from '../../../realm/objects/Workout';
@@ -67,9 +67,29 @@ export const AddWorkoutForm = () => {
     },
     resolver: yupResolver(validationSchema),
   });
-  const {styles, theme} = useMakeStyles(({layout}) => ({
+  const {styles, theme} = useMakeStyles(({layout, colors}) => ({
     wrapper: {
       padding: layout.gap,
+      flex: 1,
+    },
+    heading: {
+      flexGrow: 0,
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: layout.gap,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.outline,
+      borderBottomStyle: 'solid',
+    },
+    saveButton: {
+      marginLeft: layout.gap,
+      marginTop: 8,
+    },
+    listWrapper: {
+      flexGrow: 9,
+    },
+    scrollList: {
+      flex: 1,
     },
   }));
   const onSubmit = (data: AddWorkoutFormValues) => {
@@ -77,21 +97,28 @@ export const AddWorkoutForm = () => {
   };
 
   return (
-    <ScrollView style={styles.wrapper}>
-      <TextInputHooked
-        name="title"
-        control={control}
-        label="Name"
-        placeholder="Type workout name"
-        mode="flat"
-      />
-      <AddWorkoutFormItems control={control} />
-      <Button
-        mode="contained-tonal"
-        theme={theme}
-        onPress={handleSubmit(onSubmit)}>
-        <Text>Save</Text>
-      </Button>
-    </ScrollView>
+    <View style={styles.wrapper}>
+      <View style={styles.heading}>
+        <TextInputHooked
+          name="title"
+          control={control}
+          label="Name"
+          placeholder="Type workout name"
+          mode="flat"
+        />
+        <Button
+          style={styles.saveButton}
+          mode="contained"
+          theme={theme}
+          onPress={handleSubmit(onSubmit)}>
+          Save
+        </Button>
+      </View>
+      <View style={styles.listWrapper}>
+        <ScrollView style={styles.scrollList}>
+          <AddWorkoutFormItems control={control} />
+        </ScrollView>
+      </View>
+    </View>
   );
 };
