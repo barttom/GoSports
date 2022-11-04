@@ -67,7 +67,7 @@ export const AddWorkoutForm = () => {
     },
     resolver: yupResolver(validationSchema),
   });
-  const {styles, theme} = useMakeStyles(({layout, colors}) => ({
+  const {styles, theme} = useMakeStyles(({layout}) => ({
     wrapper: {
       padding: layout.gap,
       flex: 1,
@@ -76,10 +76,6 @@ export const AddWorkoutForm = () => {
       flexGrow: 0,
       flexDirection: 'row',
       alignItems: 'flex-start',
-      marginBottom: layout.gap,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.outline,
-      borderBottomStyle: 'solid',
     },
     saveButton: {
       marginLeft: layout.gap,
