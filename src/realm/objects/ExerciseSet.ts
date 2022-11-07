@@ -4,7 +4,6 @@ export interface ExerciseSetAttrs {
   reps: number;
   series: number;
   weightKg: number;
-  breakSeconds: number;
 }
 
 export class ExerciseSet extends Realm.Object {
@@ -20,7 +19,6 @@ export class ExerciseSet extends Realm.Object {
       reps: 'int',
       series: 'int',
       weightKg: 'int',
-      breakSeconds: 'int',
     },
   };
 }

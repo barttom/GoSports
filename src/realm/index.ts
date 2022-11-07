@@ -8,7 +8,7 @@ import WorkoutExercise from './objects/WorkoutExercise';
 
 export const realmConfig: Configuration = {
   schema: [Exercise, ExerciseSet, Workout, WorkoutItem, WorkoutExercise],
-  schemaVersion: 4,
+  schemaVersion: 5,
 };
 export const {RealmProvider, useRealm, useQuery, useObject} =
   createRealmContext(realmConfig);

@@ -1,15 +1,18 @@
 import React, {useCallback} from 'react';
-import {IconButton} from 'react-native-paper';
-import {View} from 'react-native';
+import {IconButton, Text} from 'react-native-paper';
+import {FlatList, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useMakeStyles} from '../../hooks/useMakeStyles';
 import {MainNavigatorParams} from '../../navigation';
+import {useQuery} from '../../realm';
+import Workout from '../../realm/objects/Workout';
 
 // export type WorkoutsProps = {};
 
 export const Workouts = (/*{}: WorkoutsProps*/) => {
   const {navigate} = useNavigation<StackNavigationProp<MainNavigatorParams>>();
+  const items = useQuery<Workout>(Workout);
   const {styles, theme} = useMakeStyles(({layout}) => ({
     addNewButton: {
       alignSelf: 'flex-end',
@@ -33,7 +36,15 @@ export const Workouts = (/*{}: WorkoutsProps*/) => {
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.list} />
+      <FlatList
+        data={items}
+        style={styles.list}
+        renderItem={({item: {title}}) => (
+          <View style={styles.listItem}>
+            <Text>{title}</Text>
+          </View>
+        )}
+      />
       <View style={styles.actions}>
         <IconButton
           icon="plus"

@@ -1,13 +1,17 @@
 import React from 'react';
 import {useForm} from 'react-hook-form';
 import * as yup from 'yup';
-import {Alert, ScrollView, View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {Button} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
 import {TextInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
-import {WorkoutAttr} from '../../../realm/objects/Workout';
+import Workout, {WorkoutAttr} from '../../../realm/objects/Workout';
 import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
+import {useRealm} from '../../../realm';
+import {ExerciseAttr} from '../../../realm/objects/Exercise';
+import {Muscles} from '../../../constants/muscels';
 import {AddWorkoutFormItems} from './AddWorkoutFormItems';
 
 export type AddWorkoutFormValues = {
@@ -67,6 +71,8 @@ export const AddWorkoutForm = () => {
     },
     resolver: yupResolver(validationSchema),
   });
+  const realm = useRealm();
+  const {goBack} = useNavigation();
   const {styles, theme} = useMakeStyles(({layout}) => ({
     wrapper: {
       padding: layout.gap,
@@ -88,8 +94,46 @@ export const AddWorkoutForm = () => {
       flex: 1,
     },
   }));
-  const onSubmit = (data: AddWorkoutFormValues) => {
-    Alert.alert(JSON.stringify(data));
+  const onSubmit = async ({title, items}: AddWorkoutFormValues) => {
+    const parsedItems: WorkoutItemAttrs[] = items.map(
+      ({exerciseId, sets, breakSeconds, order}) => {
+        const exercise = realm.objectForPrimaryKey<ExerciseAttr>(
+          'Exercise',
+          Realm.BSON.ObjectId.createFromHexString(exerciseId),
+        );
+
+        return {
+          order,
+          breakSeconds: Number(breakSeconds),
+          exercise: {
+            title: exercise?.title || '',
+            description: exercise?.description,
+            muscle: exercise?.muscle || Muscles.abs,
+          },
+          sets: sets.map(({reps, series, weightKg}) => ({
+            reps: Number(reps),
+            series: Number(series),
+            weightKg: Number(weightKg),
+          })),
+        };
+      },
+    );
+    console.log(JSON.stringify(parsedItems, null, 2));
+
+    try {
+      await realm.write(() => {
+        realm.create(
+          'Workout',
+          Workout.generate({
+            title,
+            items: parsedItems,
+          }),
+        );
+      });
+      goBack();
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   return (
