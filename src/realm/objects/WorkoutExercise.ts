@@ -1,3 +1,4 @@
+import {Realm} from '@realm/react';
 import {Muscles} from '../../constants/muscels';
 
 class WorkoutExercise extends Realm.Object {

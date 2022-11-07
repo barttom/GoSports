@@ -1,3 +1,4 @@
+import {Realm} from '@realm/react';
 import {ExerciseSetAttrs} from './ExerciseSet';
 import {ExerciseAttr} from './Exercise';
 
