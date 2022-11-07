@@ -11,7 +11,11 @@ import {AddWorkoutFormItemsSets} from './AddWorkoutFormItemsSets';
 export type AddWorkoutFormItemsProps = {control: Control<any>};
 
 export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
-  const {fields, append, remove} = useFieldArray({control, name: 'items'});
+  const {fields, append, remove} = useFieldArray({
+    control,
+    name: 'items',
+  });
+
   const exercises = useQuery<Exercise>('Exercise');
   const {styles} = useMakeStyles(({layout}) => ({
     actions: {
@@ -31,8 +35,14 @@ export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
     [exercises],
   );
   const handleAddNewItem = useCallback(() => {
+    const newOrderValue = fields.length
+      ? fields
+          .map(item => (item as {id: string; order: number}).order)
+          .sort((a, b) => b - a)[0] + 1
+      : 0;
+
     append({
-      order: 0,
+      order: newOrderValue,
       breakSeconds: undefined,
       sets: [
         {
@@ -43,7 +53,7 @@ export const AddWorkoutFormItems = ({control}: AddWorkoutFormItemsProps) => {
       ],
       exerciseId: undefined,
     });
-  }, []);
+  }, [fields]);
   const handleRemoveItem = useCallback((index: number) => {
     remove(index);
   }, []);

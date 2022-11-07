@@ -118,7 +118,6 @@ export const AddWorkoutForm = () => {
         };
       },
     );
-    console.log(JSON.stringify(parsedItems, null, 2));
 
     try {
       await realm.write(() => {

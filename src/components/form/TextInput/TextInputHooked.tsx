@@ -36,11 +36,7 @@ export const TextInputHooked = ({
         defaultValue={defaultValue}
         mode="outlined"
         error={!!fieldState.error}
-        theme={{
-          colors: {
-            ...theme.colors,
-          },
-        }}
+        theme={theme}
         {...props}
       />
     </FieldWrapper>

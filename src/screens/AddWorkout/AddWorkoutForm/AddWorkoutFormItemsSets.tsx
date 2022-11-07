@@ -24,7 +24,7 @@ export const AddWorkoutFormItemsSets = ({
   }));
   const name = `items[${itemIndex}].sets`;
   const {fields} = useFieldArray({
-    name,
+    name: name as 'items[0].sets',
     control,
   });
 
