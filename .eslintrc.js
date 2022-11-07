@@ -11,6 +11,12 @@ module.exports = {
         'no-shadow': 'off',
         'no-undef': 'off',
         'import/no-extraneous-dependencies': ['error', {devDependencies: true}],
+        'react-native/no-raw-text': [
+          2,
+          {
+            skip: ['Button'],
+          },
+        ],
       },
     },
   ],

@@ -1,5 +1,6 @@
 import {Realm} from '@realm/react';
 import {Muscles} from '../../constants/muscels';
+
 export interface ExerciseAttr {
   title: string;
   description?: string;
