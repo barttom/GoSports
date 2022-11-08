@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useForm} from 'react-hook-form';
 import * as yup from 'yup';
 import {ScrollView, View} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {Button} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {TextInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 import Workout, {WorkoutAttr} from '../../../realm/objects/Workout';
@@ -12,6 +12,7 @@ import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
 import {useRealm} from '../../../realm';
 import {ExerciseAttr} from '../../../realm/objects/Exercise';
 import {Muscles} from '../../../constants/muscels';
+import {MainNavigatorParams} from '../../../navigation';
 import {AddWorkoutFormItems} from './AddWorkoutFormItems';
 
 export type AddWorkoutFormValues = {
@@ -51,6 +52,15 @@ const validationSchema = yup
   .required();
 
 export const AddWorkoutForm = () => {
+  const {params} =
+    useRoute<
+      RouteProp<Record<string, MainNavigatorParams['AddWorkout']>, string>
+    >();
+  const workoutId = params?.workoutId;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isEditMode, setIsEditMode] = useState(!workoutId);
+  console.log(workoutId);
+
   const {control, handleSubmit} = useForm<AddWorkoutFormValues>({
     defaultValues: {
       title: '',

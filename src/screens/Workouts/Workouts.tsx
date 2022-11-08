@@ -9,9 +9,7 @@ import {useQuery} from '../../realm';
 import Workout from '../../realm/objects/Workout';
 import {WorkoutItem} from './WorkoutItem/WorkoutItem';
 
-// export type WorkoutsProps = {};
-
-export const Workouts = (/*{}: WorkoutsProps*/) => {
+export const Workouts = () => {
   const {navigate} = useNavigation<StackNavigationProp<MainNavigatorParams>>();
   const workouts = useQuery<Workout>(Workout);
   const {styles, theme} = useMakeStyles(({layout}) => ({
@@ -40,8 +38,8 @@ export const Workouts = (/*{}: WorkoutsProps*/) => {
       <FlatList
         data={workouts}
         style={styles.list}
-        renderItem={({item: {title, items}}) => (
-          <WorkoutItem title={title} exerciseCounter={items.length} />
+        renderItem={({item: {title, items, _id}}) => (
+          <WorkoutItem title={title} exerciseCounter={items.length} id={_id} />
         )}
         keyExtractor={({_id}) => _id.toHexString()}
       />
