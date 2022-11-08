@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import * as yup from 'yup';
 import {ScrollView, View} from 'react-native';
@@ -35,7 +35,7 @@ const validationSchema = yup
     items: yup.array(
       yup.object({
         order: yup.number().required(),
-        exerciseId: yup.string().required(),
+        exerciseId: yup.string(),
         breakSeconds: yup.string().required(),
         sets: yup
           .array(
@@ -58,8 +58,7 @@ export const AddWorkoutForm = () => {
     >();
   const workoutId = params?.workoutId;
   const realm = useRealm();
-  const {goBack} = useNavigation();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {goBack, setOptions} = useNavigation();
   const [isEditMode, setIsEditMode] = useState(!workoutId);
   const initialWorkout = workoutId
     ? realm.objectForPrimaryKey<WorkoutAttr>(
@@ -133,10 +132,12 @@ export const AddWorkoutForm = () => {
   const onSubmit = async ({title, items}: AddWorkoutFormValues) => {
     const parsedItems: WorkoutItemAttrs[] = items.map(
       ({exerciseId, sets, breakSeconds, order}) => {
-        const exercise = realm.objectForPrimaryKey<ExerciseAttr>(
-          'Exercise',
-          Realm.BSON.ObjectId.createFromHexString(exerciseId!),
-        );
+        const exercise = exerciseId
+          ? realm.objectForPrimaryKey<ExerciseAttr>(
+              'Exercise',
+              Realm.BSON.ObjectId.createFromHexString(exerciseId),
+            )
+          : initialWorkout?.items.find(item => item.order === order)?.exercise;
 
         return {
           order,
@@ -157,13 +158,18 @@ export const AddWorkoutForm = () => {
 
     try {
       await realm.write(() => {
-        realm.create(
-          'Workout',
-          Workout.generate({
-            title,
-            items: parsedItems,
-          }),
-        );
+        if (initialWorkout) {
+          initialWorkout.title = title;
+          initialWorkout.items = parsedItems;
+        } else {
+          realm.create(
+            'Workout',
+            Workout.generate({
+              title,
+              items: parsedItems,
+            }),
+          );
+        }
       });
       goBack();
     } catch (error) {
@@ -173,6 +179,12 @@ export const AddWorkoutForm = () => {
   const onRestoreData = useCallback(() => {
     reset();
     setIsEditMode(false);
+  }, []);
+
+  useEffect(() => {
+    if (initialWorkout) {
+      setOptions({title: initialWorkout.title});
+    }
   }, []);
 
   return (

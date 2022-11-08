@@ -10,6 +10,7 @@ class Workout extends Realm.Object {
   _id!: Realm.BSON.ObjectId;
   title!: string;
   items!: WorkoutItemAttrs[];
+  createdAt!: Date;
 
   static generate({title, items}: WorkoutAttr) {
     return {
@@ -27,6 +28,7 @@ class Workout extends Realm.Object {
       _id: 'objectId',
       title: 'string',
       items: 'WorkoutItem[]',
+      createdAt: 'date',
     },
   };
 }
