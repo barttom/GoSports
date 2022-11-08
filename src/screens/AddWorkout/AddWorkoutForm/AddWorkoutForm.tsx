@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import * as yup from 'yup';
 import {ScrollView, View} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {Button} from 'react-native-paper';
+import {IconButton} from 'react-native-paper';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {TextInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
@@ -89,8 +89,7 @@ export const AddWorkoutForm = () => {
     };
   };
 
-  console.log(JSON.stringify(getInitialData(), null, 2));
-  const {control, handleSubmit} = useForm<AddWorkoutFormValues>({
+  const {control, handleSubmit, reset} = useForm<AddWorkoutFormValues>({
     defaultValues: getInitialData() || {
       title: '',
       items: [
@@ -171,6 +170,10 @@ export const AddWorkoutForm = () => {
       console.warn(error);
     }
   };
+  const onRestoreData = useCallback(() => {
+    reset();
+    setIsEditMode(false);
+  }, []);
 
   return (
     <View style={styles.wrapper}>
@@ -181,20 +184,44 @@ export const AddWorkoutForm = () => {
           label="Name"
           placeholder="Type workout name"
           mode="flat"
+          editable={isEditMode}
         />
-        <Button
-          style={styles.saveButton}
-          mode="contained"
-          theme={theme}
-          onPress={handleSubmit(onSubmit)}>
-          Save
-        </Button>
+        {isEditMode ? (
+          <>
+            <IconButton
+              style={styles.saveButton}
+              mode="contained"
+              containerColor={theme.colors.primary}
+              iconColor={theme.colors.onPrimary}
+              onPress={handleSubmit(onSubmit)}
+              icon={'content-save-outline'}
+            />
+            {!!initialWorkout && (
+              <IconButton
+                style={styles.saveButton}
+                mode="contained"
+                onPress={onRestoreData}
+                icon={'backup-restore'}
+              />
+            )}
+          </>
+        ) : (
+          <IconButton
+            style={styles.saveButton}
+            mode="contained"
+            containerColor={theme.colors.primary}
+            iconColor={theme.colors.onPrimary}
+            onPress={() => setIsEditMode(true)}
+            icon={'pencil-outline'}
+          />
+        )}
       </View>
       <View style={styles.listWrapper}>
         <ScrollView style={styles.scrollList}>
           <AddWorkoutFormItems
             control={control}
             initialItems={initialWorkout?.items}
+            isEditMode={isEditMode}
           />
         </ScrollView>
       </View>

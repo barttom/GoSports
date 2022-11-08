@@ -8,11 +8,13 @@ import {AddWorkoutFormValues} from './AddWorkoutForm';
 export type AddWorkoutFormItemsSetsProps = {
   itemIndex: number;
   control: Control<any>;
+  isEditMode: boolean;
 };
 
 export const AddWorkoutFormItemsSets = ({
   itemIndex,
   control,
+  isEditMode,
 }: AddWorkoutFormItemsSetsProps) => {
   const {styles} = useMakeStyles(({layout}) => ({
     wrapper: {
@@ -40,6 +42,7 @@ export const AddWorkoutFormItemsSets = ({
             control={control}
             bottomSpace={0}
             withErrorMessage={false}
+            editable={isEditMode}
           />
           <NumberInputHooked
             style={styles.item}
@@ -48,6 +51,7 @@ export const AddWorkoutFormItemsSets = ({
             control={control}
             bottomSpace={0}
             withErrorMessage={false}
+            editable={isEditMode}
           />
           <NumberInputHooked
             style={styles.item}
@@ -57,6 +61,7 @@ export const AddWorkoutFormItemsSets = ({
             bottomSpace={0}
             withErrorMessage={false}
             allowDecimals
+            editable={isEditMode}
           />
         </View>
       ))}

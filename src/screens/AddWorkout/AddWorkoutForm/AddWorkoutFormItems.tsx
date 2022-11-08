@@ -13,11 +13,13 @@ import {AddWorkoutFormValues} from './AddWorkoutForm';
 export type AddWorkoutFormItemsProps = {
   control: Control<any>;
   initialItems?: WorkoutItemAttrs[];
+  isEditMode: boolean;
 };
 
 export const AddWorkoutFormItems = ({
   control,
   initialItems,
+  isEditMode,
 }: AddWorkoutFormItemsProps) => {
   const {fields, append, remove} = useFieldArray<AddWorkoutFormValues>({
     control,
@@ -104,28 +106,40 @@ export const AddWorkoutFormItems = ({
                 />
               )}
 
-              <AddWorkoutFormItemsSets itemIndex={index} control={control} />
+              <AddWorkoutFormItemsSets
+                itemIndex={index}
+                control={control}
+                isEditMode={isEditMode}
+              />
               <TimeLengthPickerHooked
                 name={`items[${index}].breakSeconds`}
                 control={control}
                 label="Break time:"
+                editable={isEditMode}
+                defaultValue={Number(
+                  (field as AddWorkoutFormValues['items'][0]).breakSeconds,
+                )}
               />
             </Card.Content>
             <Card.Actions style={styles.actions}>
-              <IconButton
-                icon="trash-can-outline"
-                onPress={() => handleRemoveItem(index)}
-              />
+              {isEditMode && (
+                <IconButton
+                  icon="trash-can-outline"
+                  onPress={() => handleRemoveItem(index)}
+                />
+              )}
             </Card.Actions>
           </Card>
         );
       })}
-      <Button
-        style={styles.addNextButton}
-        mode="contained-tonal"
-        onPress={handleAddNewItem}>
-        Add next
-      </Button>
+      {isEditMode && (
+        <Button
+          style={styles.addNextButton}
+          mode="contained-tonal"
+          onPress={handleAddNewItem}>
+          Add next
+        </Button>
+      )}
     </View>
   );
 };
