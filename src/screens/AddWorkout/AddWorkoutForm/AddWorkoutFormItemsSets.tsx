@@ -3,6 +3,7 @@ import {Control, useFieldArray} from 'react-hook-form';
 import {View} from 'react-native';
 import {NumberInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
+import {AddWorkoutFormValues} from './AddWorkoutForm';
 
 export type AddWorkoutFormItemsSetsProps = {
   itemIndex: number;
@@ -23,8 +24,8 @@ export const AddWorkoutFormItemsSets = ({
     },
   }));
   const name = `items[${itemIndex}].sets`;
-  const {fields} = useFieldArray({
-    name: name as 'items[0].sets',
+  const {fields} = useFieldArray<AddWorkoutFormValues>({
+    name: name as 'items.0.sets',
     control,
   });
 

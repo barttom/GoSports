@@ -25,7 +25,7 @@ export type AddWorkoutFormValues = {
       weightKg: string;
     }[];
     breakSeconds: string;
-    exerciseId: string;
+    exerciseId?: string;
   }>;
 };
 
@@ -57,12 +57,41 @@ export const AddWorkoutForm = () => {
       RouteProp<Record<string, MainNavigatorParams['AddWorkout']>, string>
     >();
   const workoutId = params?.workoutId;
+  const realm = useRealm();
+  const {goBack} = useNavigation();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isEditMode, setIsEditMode] = useState(!workoutId);
-  console.log(workoutId);
+  const initialWorkout = workoutId
+    ? realm.objectForPrimaryKey<WorkoutAttr>(
+        'Workout',
+        Realm.BSON.ObjectId.createFromHexString(workoutId),
+      )
+    : null;
+  const getInitialData = (): AddWorkoutFormValues | null => {
+    if (!initialWorkout) {
+      return null;
+    }
 
+    return {
+      title: initialWorkout.title,
+      items: initialWorkout.items
+        .map(item => ({
+          exerciseId: undefined,
+          breakSeconds: item.breakSeconds.toString(),
+          order: item.order,
+          sets: item.sets.map(setItem => ({
+            reps: setItem.reps.toString(),
+            series: setItem.series.toString(),
+            weightKg: setItem.weightKg.toString(),
+          })),
+        }))
+        .sort((a, b) => a.order - b.order),
+    };
+  };
+
+  console.log(JSON.stringify(getInitialData(), null, 2));
   const {control, handleSubmit} = useForm<AddWorkoutFormValues>({
-    defaultValues: {
+    defaultValues: getInitialData() || {
       title: '',
       items: [
         {
@@ -81,8 +110,6 @@ export const AddWorkoutForm = () => {
     },
     resolver: yupResolver(validationSchema),
   });
-  const realm = useRealm();
-  const {goBack} = useNavigation();
   const {styles, theme} = useMakeStyles(({layout}) => ({
     wrapper: {
       padding: layout.gap,
@@ -109,7 +136,7 @@ export const AddWorkoutForm = () => {
       ({exerciseId, sets, breakSeconds, order}) => {
         const exercise = realm.objectForPrimaryKey<ExerciseAttr>(
           'Exercise',
-          Realm.BSON.ObjectId.createFromHexString(exerciseId),
+          Realm.BSON.ObjectId.createFromHexString(exerciseId!),
         );
 
         return {
@@ -165,7 +192,10 @@ export const AddWorkoutForm = () => {
       </View>
       <View style={styles.listWrapper}>
         <ScrollView style={styles.scrollList}>
-          <AddWorkoutFormItems control={control} />
+          <AddWorkoutFormItems
+            control={control}
+            initialItems={initialWorkout?.items}
+          />
         </ScrollView>
       </View>
     </View>
