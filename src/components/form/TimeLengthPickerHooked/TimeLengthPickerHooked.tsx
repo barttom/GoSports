@@ -17,12 +17,19 @@ export type TimeLengthPickerHookedProps = Pick<
   withErrorMessage?: boolean;
   defaultValue?: number;
   label?: string;
+  editable?: boolean;
 };
 
 const timeNumbers = Array.from({length: 60}, (_, index) =>
   index < 10 ? `0${index}` : index.toString(),
 );
-const parseDefaultValue = (value: number | string) => {
+
+const convertSecondsToIndex = (
+  value: number | string,
+): {
+  minutes: number;
+  seconds: number;
+} => {
   const parsedValue = Number(value);
 
   if (isNaN(parsedValue) || parsedValue <= 0) {
@@ -42,6 +49,16 @@ const parseDefaultValue = (value: number | string) => {
   };
 };
 
+const convertIndexToSeconds = (
+  minutesIndex: number,
+  secondsIndex: number,
+): number => {
+  const minutes = Number(timeNumbers[minutesIndex]);
+  const seconds = Number(timeNumbers[secondsIndex]);
+
+  return minutes * 60 + seconds;
+};
+
 export const TimeLengthPickerHooked = ({
   control,
   name,
@@ -49,9 +66,10 @@ export const TimeLengthPickerHooked = ({
   withErrorMessage = true,
   defaultValue = 0,
   label,
+  editable = true,
 }: TimeLengthPickerHookedProps) => {
   const initialIndex = useMemo(
-    () => parseDefaultValue(defaultValue),
+    () => convertSecondsToIndex(defaultValue),
     [defaultValue],
   );
   const [minutesIndex, setMinutesIndex] = useState(initialIndex.minutes);
@@ -110,6 +128,35 @@ export const TimeLengthPickerHooked = ({
     ),
     [],
   );
+  const renderPicker = useCallback(
+    ({
+      selectedIndex,
+      onValueChange,
+    }: Pick<ScrollPickerProps, 'selectedIndex' | 'onValueChange'>) => {
+      if (!editable) {
+        return (
+          <View style={styles.pickerPlaceholder}>
+            <Text>{timeNumbers[selectedIndex!]}</Text>
+          </View>
+        );
+      }
+
+      if (shouldRenderPicker) {
+        return (
+          <ScrollPicker
+            dataSource={timeNumbers}
+            onValueChange={onValueChange}
+            selectedIndex={selectedIndex}
+            {...pickerProps}
+          />
+        );
+      }
+
+      return pickerPlaceholder;
+    },
+    [editable, styles.pickerPlaceholder, pickerProps, shouldRenderPicker],
+  );
+
   const resetValue = useCallback(() => {
     setSecondsIndex(initialIndex.seconds);
     setMinutesIndex(initialIndex.minutes);
@@ -120,11 +167,19 @@ export const TimeLengthPickerHooked = ({
   }, [initialIndex]);
 
   useEffect(() => {
-    const minutes = Number(timeNumbers[minutesIndex]);
-    const seconds = Number(timeNumbers[secondsIndex]);
-
-    field.onChange(minutes * 60 + seconds);
+    field.onChange(convertIndexToSeconds(minutesIndex, secondsIndex));
   }, [minutesIndex, secondsIndex]);
+
+  useEffect(() => {
+    const currValue = Number(field.value);
+
+    if (currValue !== convertIndexToSeconds(minutesIndex, secondsIndex)) {
+      const parsedValue = convertSecondsToIndex(currValue);
+
+      setMinutesIndex(parsedValue.minutes);
+      setSecondsIndex(parsedValue.seconds);
+    }
+  }, [field.value]);
 
   return (
     <FieldWrapper
@@ -133,41 +188,31 @@ export const TimeLengthPickerHooked = ({
       <View style={styles.wrapper}>
         {label && <Text style={styles.mainLabel}>{label}</Text>}
         <View style={styles.picker}>
-          {shouldRenderPicker ? (
-            <ScrollPicker
-              dataSource={timeNumbers}
-              onValueChange={(data, selectedIndex) => {
-                setMinutesIndex(selectedIndex);
-              }}
-              selectedIndex={minutesIndex}
-              {...pickerProps}
-            />
-          ) : (
-            pickerPlaceholder
-          )}
+          {renderPicker({
+            selectedIndex: minutesIndex,
+            onValueChange: (data, selectedIndex) => {
+              setMinutesIndex(selectedIndex);
+            },
+          })}
           <Text style={styles.label}>min.</Text>
         </View>
         <View style={styles.picker}>
-          {shouldRenderPicker ? (
-            <ScrollPicker
-              dataSource={timeNumbers}
-              onValueChange={(data, selectedIndex) => {
-                setSecondsIndex(selectedIndex);
-              }}
-              selectedIndex={secondsIndex}
-              {...pickerProps}
-            />
-          ) : (
-            pickerPlaceholder
-          )}
+          {renderPicker({
+            selectedIndex: secondsIndex,
+            onValueChange: (data, selectedIndex) => {
+              setSecondsIndex(selectedIndex);
+            },
+          })}
           <Text style={styles.label}>sec.</Text>
         </View>
-        <IconButton
-          icon="backspace-outline"
-          size={24}
-          onPress={resetValue}
-          disabled={!secondsIndex && !minutesIndex}
-        />
+        {editable && (
+          <IconButton
+            icon="backspace-outline"
+            size={24}
+            onPress={resetValue}
+            disabled={!secondsIndex && !minutesIndex}
+          />
+        )}
       </View>
     </FieldWrapper>
   );

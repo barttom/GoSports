@@ -7,7 +7,9 @@ import {TabNavigator} from './TabNavigator';
 export type MainNavigatorParams = {
   Home: undefined;
   AddExercise: undefined;
-  AddWorkout: undefined;
+  AddWorkout?: {
+    workoutId: string;
+  };
 };
 const Stack = createNativeStackNavigator<MainNavigatorParams>();
 

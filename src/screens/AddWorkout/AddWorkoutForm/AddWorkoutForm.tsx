@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import * as yup from 'yup';
 import {ScrollView, View} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {Button} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import {IconButton} from 'react-native-paper';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {TextInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 import Workout, {WorkoutAttr} from '../../../realm/objects/Workout';
@@ -12,6 +12,7 @@ import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
 import {useRealm} from '../../../realm';
 import {ExerciseAttr} from '../../../realm/objects/Exercise';
 import {Muscles} from '../../../constants/muscels';
+import {MainNavigatorParams} from '../../../navigation';
 import {AddWorkoutFormItems} from './AddWorkoutFormItems';
 
 export type AddWorkoutFormValues = {
@@ -24,7 +25,7 @@ export type AddWorkoutFormValues = {
       weightKg: string;
     }[];
     breakSeconds: string;
-    exerciseId: string;
+    exerciseId?: string;
   }>;
 };
 
@@ -34,7 +35,7 @@ const validationSchema = yup
     items: yup.array(
       yup.object({
         order: yup.number().required(),
-        exerciseId: yup.string().required(),
+        exerciseId: yup.string(),
         breakSeconds: yup.string().required(),
         sets: yup
           .array(
@@ -51,8 +52,44 @@ const validationSchema = yup
   .required();
 
 export const AddWorkoutForm = () => {
-  const {control, handleSubmit} = useForm<AddWorkoutFormValues>({
-    defaultValues: {
+  const {params} =
+    useRoute<
+      RouteProp<Record<string, MainNavigatorParams['AddWorkout']>, string>
+    >();
+  const workoutId = params?.workoutId;
+  const realm = useRealm();
+  const {goBack, setOptions} = useNavigation();
+  const [isEditMode, setIsEditMode] = useState(!workoutId);
+  const initialWorkout = workoutId
+    ? realm.objectForPrimaryKey<WorkoutAttr>(
+        'Workout',
+        Realm.BSON.ObjectId.createFromHexString(workoutId),
+      )
+    : null;
+  const getInitialData = (): AddWorkoutFormValues | null => {
+    if (!initialWorkout) {
+      return null;
+    }
+
+    return {
+      title: initialWorkout.title,
+      items: initialWorkout.items
+        .map(item => ({
+          exerciseId: undefined,
+          breakSeconds: item.breakSeconds.toString(),
+          order: item.order,
+          sets: item.sets.map(setItem => ({
+            reps: setItem.reps.toString(),
+            series: setItem.series.toString(),
+            weightKg: setItem.weightKg.toString(),
+          })),
+        }))
+        .sort((a, b) => a.order - b.order),
+    };
+  };
+
+  const {control, handleSubmit, reset} = useForm<AddWorkoutFormValues>({
+    defaultValues: getInitialData() || {
       title: '',
       items: [
         {
@@ -71,8 +108,6 @@ export const AddWorkoutForm = () => {
     },
     resolver: yupResolver(validationSchema),
   });
-  const realm = useRealm();
-  const {goBack} = useNavigation();
   const {styles, theme} = useMakeStyles(({layout}) => ({
     wrapper: {
       padding: layout.gap,
@@ -97,10 +132,12 @@ export const AddWorkoutForm = () => {
   const onSubmit = async ({title, items}: AddWorkoutFormValues) => {
     const parsedItems: WorkoutItemAttrs[] = items.map(
       ({exerciseId, sets, breakSeconds, order}) => {
-        const exercise = realm.objectForPrimaryKey<ExerciseAttr>(
-          'Exercise',
-          Realm.BSON.ObjectId.createFromHexString(exerciseId),
-        );
+        const exercise = exerciseId
+          ? realm.objectForPrimaryKey<ExerciseAttr>(
+              'Exercise',
+              Realm.BSON.ObjectId.createFromHexString(exerciseId),
+            )
+          : initialWorkout?.items.find(item => item.order === order)?.exercise;
 
         return {
           order,
@@ -121,19 +158,34 @@ export const AddWorkoutForm = () => {
 
     try {
       await realm.write(() => {
-        realm.create(
-          'Workout',
-          Workout.generate({
-            title,
-            items: parsedItems,
-          }),
-        );
+        if (initialWorkout) {
+          initialWorkout.title = title;
+          initialWorkout.items = parsedItems;
+        } else {
+          realm.create(
+            'Workout',
+            Workout.generate({
+              title,
+              items: parsedItems,
+            }),
+          );
+        }
       });
       goBack();
     } catch (error) {
       console.warn(error);
     }
   };
+  const onRestoreData = useCallback(() => {
+    reset();
+    setIsEditMode(false);
+  }, []);
+
+  useEffect(() => {
+    if (initialWorkout) {
+      setOptions({title: initialWorkout.title});
+    }
+  }, []);
 
   return (
     <View style={styles.wrapper}>
@@ -144,18 +196,45 @@ export const AddWorkoutForm = () => {
           label="Name"
           placeholder="Type workout name"
           mode="flat"
+          editable={isEditMode}
         />
-        <Button
-          style={styles.saveButton}
-          mode="contained"
-          theme={theme}
-          onPress={handleSubmit(onSubmit)}>
-          Save
-        </Button>
+        {isEditMode ? (
+          <>
+            <IconButton
+              style={styles.saveButton}
+              mode="contained"
+              containerColor={theme.colors.primary}
+              iconColor={theme.colors.onPrimary}
+              onPress={handleSubmit(onSubmit)}
+              icon={'content-save-outline'}
+            />
+            {!!initialWorkout && (
+              <IconButton
+                style={styles.saveButton}
+                mode="contained"
+                onPress={onRestoreData}
+                icon={'backup-restore'}
+              />
+            )}
+          </>
+        ) : (
+          <IconButton
+            style={styles.saveButton}
+            mode="contained"
+            containerColor={theme.colors.primary}
+            iconColor={theme.colors.onPrimary}
+            onPress={() => setIsEditMode(true)}
+            icon={'pencil-outline'}
+          />
+        )}
       </View>
       <View style={styles.listWrapper}>
         <ScrollView style={styles.scrollList}>
-          <AddWorkoutFormItems control={control} />
+          <AddWorkoutFormItems
+            control={control}
+            initialItems={initialWorkout?.items}
+            isEditMode={isEditMode}
+          />
         </ScrollView>
       </View>
     </View>

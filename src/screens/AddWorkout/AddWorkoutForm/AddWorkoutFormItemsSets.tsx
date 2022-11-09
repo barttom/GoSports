@@ -3,15 +3,18 @@ import {Control, useFieldArray} from 'react-hook-form';
 import {View} from 'react-native';
 import {NumberInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
+import {AddWorkoutFormValues} from './AddWorkoutForm';
 
 export type AddWorkoutFormItemsSetsProps = {
   itemIndex: number;
   control: Control<any>;
+  isEditMode: boolean;
 };
 
 export const AddWorkoutFormItemsSets = ({
   itemIndex,
   control,
+  isEditMode,
 }: AddWorkoutFormItemsSetsProps) => {
   const {styles} = useMakeStyles(({layout}) => ({
     wrapper: {
@@ -23,8 +26,8 @@ export const AddWorkoutFormItemsSets = ({
     },
   }));
   const name = `items[${itemIndex}].sets`;
-  const {fields} = useFieldArray({
-    name: name as 'items[0].sets',
+  const {fields} = useFieldArray<AddWorkoutFormValues>({
+    name: name as 'items.0.sets',
     control,
   });
 
@@ -39,6 +42,7 @@ export const AddWorkoutFormItemsSets = ({
             control={control}
             bottomSpace={0}
             withErrorMessage={false}
+            editable={isEditMode}
           />
           <NumberInputHooked
             style={styles.item}
@@ -47,6 +51,7 @@ export const AddWorkoutFormItemsSets = ({
             control={control}
             bottomSpace={0}
             withErrorMessage={false}
+            editable={isEditMode}
           />
           <NumberInputHooked
             style={styles.item}
@@ -56,6 +61,7 @@ export const AddWorkoutFormItemsSets = ({
             bottomSpace={0}
             withErrorMessage={false}
             allowDecimals
+            editable={isEditMode}
           />
         </View>
       ))}
