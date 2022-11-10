@@ -5,6 +5,7 @@ import {ScrollView, View} from 'react-native';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {IconButton} from 'react-native-paper';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import {TextInputHooked} from '../../../components/form';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 import Workout, {WorkoutAttr} from '../../../realm/objects/Workout';
@@ -58,7 +59,8 @@ export const AddWorkoutForm = () => {
     >();
   const workoutId = params?.workoutId;
   const realm = useRealm();
-  const {goBack, setOptions} = useNavigation();
+  const {goBack, setOptions, navigate} =
+    useNavigation<StackNavigationProp<MainNavigatorParams>>();
   const [isEditMode, setIsEditMode] = useState(!workoutId);
   const initialWorkout = workoutId
     ? realm.objectForPrimaryKey<WorkoutAttr>(
@@ -112,6 +114,7 @@ export const AddWorkoutForm = () => {
     wrapper: {
       padding: layout.gap,
       flex: 1,
+      position: 'relative',
     },
     heading: {
       flexGrow: 0,
@@ -128,7 +131,16 @@ export const AddWorkoutForm = () => {
     scrollList: {
       flex: 1,
     },
+    runWorkoutButton: {
+      position: 'absolute',
+      bottom: layout.gap,
+      right: layout.gap,
+    },
   }));
+  const onStartWorkout = useCallback(() => {
+    navigate('WorkoutTimer', {workoutId: workoutId!});
+  }, []);
+
   const onSubmit = async ({title, items}: AddWorkoutFormValues) => {
     const parsedItems: WorkoutItemAttrs[] = items.map(
       ({exerciseId, sets, breakSeconds, order}) => {
@@ -237,6 +249,15 @@ export const AddWorkoutForm = () => {
           />
         </ScrollView>
       </View>
+      {!isEditMode && !!initialWorkout && (
+        <IconButton
+          style={styles.runWorkoutButton}
+          icon="play-circle-outline"
+          mode="contained"
+          size={40}
+          onPress={onStartWorkout}
+        />
+      )}
     </View>
   );
 };

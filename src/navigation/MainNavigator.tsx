@@ -2,12 +2,16 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AddExercise} from '../screens/AddExercise';
 import {AddWorkout} from '../screens/AddWorkout';
+import {WorkoutTimer} from '../screens';
 import {TabNavigator} from './TabNavigator';
 
 export type MainNavigatorParams = {
   Home: undefined;
   AddExercise: undefined;
   AddWorkout?: {
+    workoutId: string;
+  };
+  WorkoutTimer: {
     workoutId: string;
   };
 };
@@ -30,6 +34,11 @@ export const MainNavigator = () => {
         name="AddWorkout"
         component={AddWorkout}
         options={{title: 'Add new workout', presentation: 'modal'}}
+      />
+      <Stack.Screen
+        name="WorkoutTimer"
+        component={WorkoutTimer}
+        options={{title: 'Workout time!', presentation: 'modal'}}
       />
     </Stack.Navigator>
   );
