@@ -138,7 +138,7 @@ export const AddWorkoutForm = () => {
     },
   }));
   const onStartWorkout = useCallback(() => {
-    navigate('WorkoutTimer', {workoutId: workoutId!});
+    navigate('WorkoutDetails', {workoutId: workoutId!});
   }, []);
 
   const onSubmit = async ({title, items}: AddWorkoutFormValues) => {

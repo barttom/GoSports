@@ -6,9 +6,9 @@ import {MainNavigatorParams} from '../../navigation';
 import {useRealm} from '../../realm';
 import {WorkoutAttr} from '../../realm/objects/Workout';
 import {useMakeStyles} from '../../hooks/useMakeStyles';
-import {WorkoutTimerCounter} from './WorkoutTimerCounter/WorkoutTimerCounter';
+import {WorkoutTimer} from './WorkoutTimer';
 
-export const WorkoutTimer = () => {
+export const WorkoutDetails = () => {
   const {params} =
     useRoute<
       RouteProp<Record<string, MainNavigatorParams['AddWorkout']>, string>
@@ -44,7 +44,7 @@ export const WorkoutTimer = () => {
 
   return (
     <View style={styles.wrapper}>
-      <WorkoutTimerCounter items={items} />
+      <WorkoutTimer items={items} />
     </View>
   );
 };

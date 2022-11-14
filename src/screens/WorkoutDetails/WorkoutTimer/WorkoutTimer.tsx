@@ -6,7 +6,7 @@ import {useMakeStyles} from '../../../hooks/useMakeStyles';
 
 export type WorkoutTimerCounterProps = {items: WorkoutItemAttrs[]};
 
-export const WorkoutTimerCounter = ({items}: WorkoutTimerCounterProps) => {
+export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   const {styles} = useMakeStyles(() => ({
     itemShadowed: {
       opacity: 0.5,
