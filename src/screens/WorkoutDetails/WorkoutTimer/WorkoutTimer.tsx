@@ -1,6 +1,6 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Button, ButtonProps, List, Text} from 'react-native-paper';
-import {FlatList, View} from 'react-native';
+import {Alert, FlatList, View} from 'react-native';
 import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 
@@ -22,9 +22,7 @@ const formatTime = (value: number) => {
 };
 
 export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentSeries, setCurrentSeries] = useState(1);
   const [timerMode, setTimerMode] = useState<TimerMode>('stopped');
   const [time, setTime] = useState(0);
@@ -56,9 +54,30 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
     },
   }));
   const currentExercise = items[currentExerciseIndex];
-  const set = currentExercise.sets[0];
+  const currentSet = currentExercise.sets[0];
+  const handleSetExerciseMode = useCallback(() => {
+    setTimerMode('exercise');
+  }, []);
+  const handleSetBreakMode = useCallback(() => {
+    setTimerMode('break');
+  }, []);
+  const handleSkipBreak = useCallback(() => {
+    setTimerMode('exercise');
+    setCurrentSeries(currentSeries < currentSet.series ? currentSeries + 1 : 1);
+
+    if (currentSeries === currentSet.series) {
+      if (currentExerciseIndex === items.length - 1) {
+        setCurrentExerciseIndex(0);
+        setTime(0);
+        setTimerMode('stopped');
+        Alert.alert('Finished!');
+      } else {
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
+      }
+    }
+  }, [currentSeries, currentExerciseIndex, currentSet]);
+
   const exerciseRender = useMemo(() => {
-    const handleSetExerciseMode = () => setTimerMode('exercise');
     const buttonProps: Partial<ButtonProps> = {
       style: styles.timerButton,
       mode: 'contained',
@@ -67,12 +86,20 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
     switch (timerMode) {
       case 'exercise':
         return {
-          button: <Button {...buttonProps}>Done</Button>,
+          button: (
+            <Button {...buttonProps} onPress={handleSetBreakMode}>
+              Done
+            </Button>
+          ),
           title: 'Pump It!',
         };
       case 'break':
         return {
-          button: <Button {...buttonProps}>Skip</Button>,
+          button: (
+            <Button {...buttonProps} onPress={handleSkipBreak}>
+              Skip
+            </Button>
+          ),
           title: 'Break',
         };
       case 'stopped':
@@ -94,16 +121,19 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
     switch (timerMode) {
       case 'exercise': {
         clearInterval(intervalId.current);
-        tempTime = time;
+        tempTime = 0;
+        setTime(0);
         intervalId.current = setInterval(() => {
           setTime((tempTime += 1));
         }, INTERVAL);
         break;
       }
       case 'break': {
+        clearInterval(intervalId.current);
         setTime(currentExercise.breakSeconds);
+        tempTime = currentExercise.breakSeconds;
         intervalId.current = setInterval(() => {
-          setTime(time - 1);
+          setTime((tempTime -= 1));
         }, INTERVAL);
         break;
       }
@@ -117,6 +147,12 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   }, [timerMode]);
 
   useEffect(() => {
+    if (timerMode === 'break' && time <= 0) {
+      handleSkipBreak();
+    }
+  }, [time]);
+
+  useEffect(() => {
     return () => {
       clearInterval(intervalId.current);
     };
@@ -126,11 +162,11 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
     <>
       <View style={styles.currentExercise}>
         <Text variant="titleLarge">{currentExercise.exercise.title}</Text>
-        <Text>{`${set.weightKg}kg, ${set.reps} reps`}</Text>
+        <Text>{`${currentSet.weightKg}kg, ${currentSet.reps} reps`}</Text>
         <View style={styles.timeWrapper}>
           <Text variant="headlineSmall">{exerciseRender.title}</Text>
           <Text variant="displaySmall">{formatTime(time)}</Text>
-          <Text variant="headlineSmall">{`${currentSeries}/${set.series}`}</Text>
+          <Text variant="headlineSmall">{`${currentSeries}/${currentSet.series}`}</Text>
         </View>
         {exerciseRender.button}
       </View>
