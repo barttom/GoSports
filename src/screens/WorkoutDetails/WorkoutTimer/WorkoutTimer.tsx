@@ -28,7 +28,6 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   const [timerMode, setTimerMode] = useState<TimerMode>('stopped');
   const [time, setTime] = useState(0);
   const intervalId = useRef<any>(null);
-  const breakNotificationId = useRef<any>(null);
   const {styles} = useMakeStyles(({layout, colors}) => ({
     itemShadowed: {
       opacity: 0.5,
@@ -86,7 +85,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
       name: 'Default Channel',
     });
 
-    breakNotificationId.current = await notifee.displayNotification({
+    await notifee.displayNotification({
       title: 'Break has been finished.',
       body: `${currentExercise.exercise.title} | ${currentSeries}/${currentSet.series}`,
       android: {
@@ -98,7 +97,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
 
   const cancelAllNotifications = useCallback(() => {
     notifee.cancelAllNotifications();
-  }, [breakNotificationId]);
+  }, []);
   const exerciseRender = useMemo(() => {
     const buttonProps: Partial<ButtonProps> = {
       style: styles.timerButton,
