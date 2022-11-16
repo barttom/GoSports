@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Button, ButtonProps, List, Text} from 'react-native-paper';
 import {Alert, FlatList, View} from 'react-native';
+import notifee from '@notifee/react-native';
 import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 
@@ -27,6 +28,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   const [timerMode, setTimerMode] = useState<TimerMode>('stopped');
   const [time, setTime] = useState(0);
   const intervalId = useRef<any>(null);
+  const breakNotificationId = useRef<any>(null);
   const {styles} = useMakeStyles(({layout, colors}) => ({
     itemShadowed: {
       opacity: 0.5,
@@ -59,6 +61,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
     setTimerMode('exercise');
   }, []);
   const handleSetBreakMode = useCallback(() => {
+    cancelAllNotifications();
     setTimerMode('break');
   }, []);
   const handleSkipBreak = useCallback(() => {
@@ -76,7 +79,26 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
       }
     }
   }, [currentSeries, currentExerciseIndex, currentSet]);
+  const endBreakNotification = useCallback(async () => {
+    await notifee.requestPermission();
+    const channelId = await notifee.createChannel({
+      id: 'break-end',
+      name: 'Default Channel',
+    });
 
+    breakNotificationId.current = await notifee.displayNotification({
+      title: 'Break has been finished.',
+      body: `${currentExercise.exercise.title} | ${currentSeries}/${currentSet.series}`,
+      android: {
+        channelId,
+        sound: 'default',
+      },
+    });
+  }, [currentSeries, currentExercise, currentSet]);
+
+  const cancelAllNotifications = useCallback(() => {
+    notifee.cancelAllNotifications();
+  }, [breakNotificationId]);
   const exerciseRender = useMemo(() => {
     const buttonProps: Partial<ButtonProps> = {
       style: styles.timerButton,
@@ -149,6 +171,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   useEffect(() => {
     if (timerMode === 'break' && time <= 0) {
       handleSkipBreak();
+      endBreakNotification();
     }
   }, [time]);
 
