@@ -1,8 +1,9 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Button, ButtonProps, List, Text} from 'react-native-paper';
 import {Alert, FlatList, View} from 'react-native';
 import notifee from '@notifee/react-native';
 import BackgroundTimer from 'react-native-background-timer';
+import {useNavigation} from '@react-navigation/native';
 import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 
@@ -24,10 +25,12 @@ const formatTime = (value: number) => {
 };
 
 export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
+  const {addListener, dispatch} = useNavigation();
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [currentSeries, setCurrentSeries] = useState(1);
   const [timerMode, setTimerMode] = useState<TimerMode>('stopped');
   const [time, setTime] = useState(0);
+  const isFinished = useRef(false);
   const {styles} = useMakeStyles(({layout, colors}) => ({
     itemShadowed: {
       opacity: 0.5,
@@ -57,6 +60,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   const currentExercise = items[currentExerciseIndex];
   const currentSet = currentExercise.sets[0];
   const handleSetExerciseMode = useCallback(() => {
+    isFinished.current = false;
     setTimerMode('exercise');
   }, []);
   const handleSetBreakMode = useCallback(() => {
@@ -72,6 +76,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
         setCurrentExerciseIndex(0);
         setTime(0);
         setTimerMode('stopped');
+        isFinished.current = true;
         Alert.alert('Finished!');
       } else {
         setCurrentExerciseIndex(currentExerciseIndex + 1);
@@ -98,6 +103,11 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   const cancelAllNotifications = useCallback(() => {
     notifee.cancelAllNotifications();
   }, []);
+  const isWorkoutStarted =
+    time > 0 ||
+    timerMode !== 'stopped' ||
+    currentSeries > 1 ||
+    currentExerciseIndex > 0;
   const exerciseRender = useMemo(() => {
     const buttonProps: Partial<ButtonProps> = {
       style: styles.timerButton,
@@ -158,7 +168,6 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
         }, INTERVAL);
         break;
       }
-
       case 'stopped':
       default: {
         BackgroundTimer.stopBackgroundTimer();
@@ -173,6 +182,33 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
       endBreakNotification();
     }
   }, [time]);
+
+  useEffect(
+    () =>
+      addListener('beforeRemove', e => {
+        if (isWorkoutStarted && !isFinished.current) {
+          e.preventDefault();
+
+          Alert.alert(
+            'Stop workout?',
+            'Are You sure? Your current progress will be lost',
+            [
+              {
+                text: "I'm stay",
+                style: 'cancel',
+                onPress: () => {},
+              },
+              {
+                text: 'Leave it',
+                style: 'destructive',
+                onPress: () => dispatch(e.data.action),
+              },
+            ],
+          );
+        }
+      }),
+    [isWorkoutStarted, isFinished],
+  );
 
   useEffect(() => {
     return () => {
