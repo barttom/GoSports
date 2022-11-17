@@ -1,7 +1,8 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Button, ButtonProps, List, Text} from 'react-native-paper';
 import {Alert, FlatList, View} from 'react-native';
 import notifee from '@notifee/react-native';
+import BackgroundTimer from 'react-native-background-timer';
 import {WorkoutItemAttrs} from '../../../realm/objects/WorkoutItem';
 import {useMakeStyles} from '../../../hooks/useMakeStyles';
 
@@ -27,7 +28,6 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
   const [currentSeries, setCurrentSeries] = useState(1);
   const [timerMode, setTimerMode] = useState<TimerMode>('stopped');
   const [time, setTime] = useState(0);
-  const intervalId = useRef<any>(null);
   const {styles} = useMakeStyles(({layout, colors}) => ({
     itemShadowed: {
       opacity: 0.5,
@@ -141,19 +141,19 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
 
     switch (timerMode) {
       case 'exercise': {
-        clearInterval(intervalId.current);
+        BackgroundTimer.stopBackgroundTimer();
         tempTime = 0;
         setTime(0);
-        intervalId.current = setInterval(() => {
+        BackgroundTimer.runBackgroundTimer(() => {
           setTime((tempTime += 1));
         }, INTERVAL);
         break;
       }
       case 'break': {
-        clearInterval(intervalId.current);
+        BackgroundTimer.stopBackgroundTimer();
         setTime(currentExercise.breakSeconds);
         tempTime = currentExercise.breakSeconds;
-        intervalId.current = setInterval(() => {
+        BackgroundTimer.runBackgroundTimer(() => {
           setTime((tempTime -= 1));
         }, INTERVAL);
         break;
@@ -161,7 +161,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
 
       case 'stopped':
       default: {
-        clearInterval(intervalId.current);
+        BackgroundTimer.stopBackgroundTimer();
         break;
       }
     }
@@ -176,7 +176,7 @@ export const WorkoutTimer = ({items}: WorkoutTimerCounterProps) => {
 
   useEffect(() => {
     return () => {
-      clearInterval(intervalId.current);
+      BackgroundTimer.stopBackgroundTimer();
     };
   }, []);
 
