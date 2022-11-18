@@ -1,9 +1,9 @@
 import React from 'react';
 import {Provider as PaperProvider} from 'react-native-paper';
 
-import {NavigationContainer} from '@react-navigation/native';
+import {LinkingOptions, NavigationContainer} from '@react-navigation/native';
 import {Appearance} from 'react-native';
-import {MainNavigator} from './navigation/MainNavigator';
+import {MainNavigator, MainNavigatorParams} from './navigation/MainNavigator';
 import {RealmProvider} from './realm';
 import {darkColors, lightColors, theme} from './layout/theme';
 
@@ -17,6 +17,19 @@ export const App = () => {
     ...theme,
     dark: colorScheme === 'dark',
     colors: colorScheme ? colors[colorScheme] : lightColors,
+  };
+  const linking: LinkingOptions<MainNavigatorParams> = {
+    prefixes: ['gosports://'],
+    config: {
+      screens: {
+        AddExercise: 'add-exercise',
+        Home: {
+          screens: {
+            Exercises: 'exercises',
+          },
+        },
+      },
+    },
   };
 
   return (
@@ -34,7 +47,8 @@ export const App = () => {
               border: currentTheme.colors.onPrimaryContainer,
               notification: currentTheme.colors.background,
             },
-          }}>
+          }}
+          linking={linking}>
           <MainNavigator />
         </NavigationContainer>
       </PaperProvider>

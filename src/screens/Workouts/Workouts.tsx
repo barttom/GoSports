@@ -1,24 +1,35 @@
 import React, {useCallback} from 'react';
-import {IconButton} from 'react-native-paper';
-import {FlatList, View} from 'react-native';
+import {IconButton, Text} from 'react-native-paper';
+import {FlatList, Linking, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useMakeStyles} from '../../hooks/useMakeStyles';
 import {MainNavigatorParams} from '../../navigation';
 import {useQuery} from '../../realm';
 import Workout from '../../realm/objects/Workout';
+import Exercise from '../../realm/objects/Exercise';
 import {WorkoutItem} from './WorkoutItem/WorkoutItem';
 
 export const Workouts = () => {
   const {navigate} = useNavigation<StackNavigationProp<MainNavigatorParams>>();
   const workouts = useQuery<Workout>(Workout);
-  const {styles, theme} = useMakeStyles(({layout}) => ({
+  const exercises = useQuery<Exercise>(Exercise);
+  const {styles, theme} = useMakeStyles(({layout, colors}) => ({
     addNewButton: {
       alignSelf: 'flex-end',
       marginRight: layout.gap,
       marginBottom: layout.gap,
     },
     wrapper: {flexGrow: 1, paddingHorizontal: layout.gap},
+    noExercisesWrapper: {
+      padding: layout.gap,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    inlineButton: {
+      color: colors.primary,
+      fontWeight: 'bold',
+    },
     list: {flexGrow: 9},
     listItem: {
       marginVertical: 10,
@@ -32,6 +43,32 @@ export const Workouts = () => {
   const handleOpenWorkout = useCallback(() => {
     navigate('AddWorkout');
   }, []);
+
+  if (!exercises.length) {
+    const handleNavigateToExercises = () =>
+      Linking.openURL('gosports://exercises');
+
+    const handleNavigateToAddExercise = () => navigate('AddExercise');
+
+    return (
+      <View style={styles.noExercisesWrapper}>
+        <Text>Looks like You dont have any exercises.</Text>
+        <Text> Go to</Text>
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={handleNavigateToExercises}>
+          <Text style={styles.inlineButton}>Exercises</Text>
+        </TouchableOpacity>
+        <Text>&nbsp;tab or add&nbsp;</Text>
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={handleNavigateToAddExercise}>
+          <Text style={styles.inlineButton}>directly</Text>
+        </TouchableOpacity>
+        <Text>&nbsp;instead</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrapper}>
