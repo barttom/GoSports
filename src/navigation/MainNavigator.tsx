@@ -1,12 +1,13 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {NavigatorScreenParams} from '@react-navigation/native';
 import {AddExercise} from '../screens/AddExercise';
 import {AddWorkout} from '../screens/AddWorkout';
 import {WorkoutDetails} from '../screens';
-import {TabNavigator} from './TabNavigator';
+import {TabNavigator, TabNavigatorParams} from './TabNavigator';
 
 export type MainNavigatorParams = {
-  Home: undefined;
+  Home: NavigatorScreenParams<TabNavigatorParams>;
   AddExercise: undefined;
   AddWorkout?: {
     workoutId: string;
@@ -28,12 +29,12 @@ export const MainNavigator = () => {
       <Stack.Screen
         name="AddExercise"
         component={AddExercise}
-        options={{title: 'Add new exercise', presentation: 'modal'}}
+        options={{title: 'Add new exercise', presentation: 'card'}}
       />
       <Stack.Screen
         name="AddWorkout"
         component={AddWorkout}
-        options={{title: 'Add new workout', presentation: 'modal'}}
+        options={{title: 'Add new workout', presentation: 'card'}}
       />
       <Stack.Screen
         name="WorkoutDetails"
