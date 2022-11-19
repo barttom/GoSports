@@ -29,12 +29,12 @@ export const MainNavigator = () => {
       <Stack.Screen
         name="AddExercise"
         component={AddExercise}
-        options={{title: 'Add new exercise', presentation: 'modal'}}
+        options={{title: 'Add new exercise', presentation: 'card'}}
       />
       <Stack.Screen
         name="AddWorkout"
         component={AddWorkout}
-        options={{title: 'Add new workout', presentation: 'modal'}}
+        options={{title: 'Add new workout', presentation: 'card'}}
       />
       <Stack.Screen
         name="WorkoutDetails"
