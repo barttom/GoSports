@@ -16,6 +16,6 @@ jest.mock('@notifee/react-native', () => ({
 it('renders correctly', async () => {
   render(<App />);
   await waitFor(() => {
-    expect(screen.getByText('Plans!')).not.toBeEmptyElement();
+    expect(screen.getAllByText('Workouts').length).toBeGreaterThan(0);
   });
 });
