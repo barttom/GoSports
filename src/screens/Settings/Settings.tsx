@@ -1,6 +1,18 @@
 import React from 'react';
-import {Text} from 'react-native-paper';
+import {View} from 'react-native';
+import {useMakeStyles} from '../../hooks/useMakeStyles';
+import {SettingsForm} from './SettingsForm';
 
 export const Settings = () => {
-  return <Text>User settings</Text>;
+  const {styles} = useMakeStyles(({layout}) => ({
+    wrapper: {
+      padding: layout.gap,
+    },
+  }));
+
+  return (
+    <View style={styles.wrapper}>
+      <SettingsForm />
+    </View>
+  );
 };
