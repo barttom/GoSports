@@ -6,9 +6,14 @@ import {Appearance} from 'react-native';
 import {MainNavigator, MainNavigatorParams} from './navigation/MainNavigator';
 import {RealmProvider} from './realm';
 import {darkColors, lightColors, theme} from './layout/theme';
+import {useInitialSettings} from './hooks/useInitialSettings';
 
 export const App = () => {
-  const colorScheme = Appearance.getColorScheme();
+  const {userSettings} = useInitialSettings();
+  const colorScheme =
+    userSettings.themeMode === 'device'
+      ? Appearance.getColorScheme() || 'light'
+      : userSettings.themeMode;
   const colors = {
     dark: darkColors,
     light: lightColors,
@@ -16,7 +21,7 @@ export const App = () => {
   const currentTheme = {
     ...theme,
     dark: colorScheme === 'dark',
-    colors: colorScheme ? colors[colorScheme] : lightColors,
+    colors: colors[colorScheme],
   };
   const linking: LinkingOptions<MainNavigatorParams> = {
     prefixes: ['gosports://'],

@@ -1,8 +1,14 @@
 import React from 'react';
 import {View} from 'react-native';
 import {useForm} from 'react-hook-form';
-import {Button} from 'react-native-paper';
+import {Button, Text} from 'react-native-paper';
 import {GroupRadioHooked} from '../../../components/form';
+import {useRealm} from '../../../realm';
+import Settings from '../../../realm/objects/Settings';
+import {ThemeMode} from '../../../constants/themeMode';
+export type SettingsFormValues = {
+  themeMode: ThemeMode;
+};
 
 const themeOptions = [
   {
@@ -20,24 +26,31 @@ const themeOptions = [
 ];
 
 export const SettingsForm = () => {
-  const {control, handleSubmit} = useForm({
+  const realm = useRealm();
+  const initialSettings = realm.objects<Settings>('Settings')[0];
+  const {control, handleSubmit} = useForm<SettingsFormValues>({
     defaultValues: {
-      themeMode: themeOptions[0].value,
+      themeMode: initialSettings.themeMode,
     },
   });
 
-  const onSubmit = handleSubmit(values => {
-    console.warn(values);
-  });
+  const onSubmit = ({themeMode}: SettingsFormValues) => {
+    realm.write(() => {
+      initialSettings.themeMode = themeMode;
+    });
+  };
 
   return (
     <View>
+      <Text variant="titleLarge">Theme mode</Text>
       <GroupRadioHooked
         name="themeMode"
         control={control}
         items={themeOptions}
       />
-      <Button onPress={onSubmit}>Save</Button>
+      <Button mode="contained" onPress={handleSubmit(onSubmit)}>
+        Save
+      </Button>
     </View>
   );
 };
