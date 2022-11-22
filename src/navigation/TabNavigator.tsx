@@ -2,6 +2,7 @@ import React from 'react';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Workouts, Exercises, Settings} from '../screens';
+import {useAuth} from '../hooks/useAuth';
 
 export type TabNavigatorParams = {
   Workouts: undefined;
@@ -12,6 +13,7 @@ export type TabNavigatorParams = {
 const Tab = createMaterialBottomTabNavigator<TabNavigatorParams>();
 
 export const TabNavigator = () => {
+  const {user} = useAuth();
   return (
     <Tab.Navigator>
       <Tab.Screen
@@ -42,16 +44,18 @@ export const TabNavigator = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="Settings"
-        component={Settings}
-        options={{
-          tabBarLabel: 'Settings',
-          tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons name="account" color={color} size={24} />
-          ),
-        }}
-      />
+      {user.isLogged && (
+        <Tab.Screen
+          name="Settings"
+          component={Settings}
+          options={{
+            tabBarLabel: 'Settings',
+            tabBarIcon: ({color}) => (
+              <MaterialCommunityIcons name="account" color={color} size={24} />
+            ),
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 };

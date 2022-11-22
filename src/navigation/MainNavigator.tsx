@@ -1,9 +1,11 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigatorScreenParams} from '@react-navigation/native';
+import {Button} from 'react-native-paper';
 import {AddExercise} from '../screens/AddExercise';
 import {AddWorkout} from '../screens/AddWorkout';
 import {WorkoutDetails} from '../screens';
+import {useAuth} from '../hooks/useAuth';
 import {TabNavigator, TabNavigatorParams} from './TabNavigator';
 
 export type MainNavigatorParams = {
@@ -19,12 +21,21 @@ export type MainNavigatorParams = {
 const Stack = createNativeStackNavigator<MainNavigatorParams>();
 
 export const MainNavigator = () => {
+  const {user, signIn, signOut} = useAuth();
+
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
         name="Home"
         component={TabNavigator}
-        options={{title: 'Pump It!'}}
+        options={{
+          title: 'Pump It!',
+          headerRight: () => (
+            <Button onPress={user.isLogged ? signOut : signIn}>
+              {user.isLogged ? 'Log out' : 'Log in'}
+            </Button>
+          ),
+        }}
       />
       <Stack.Screen
         name="AddExercise"
